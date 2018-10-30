@@ -20,8 +20,8 @@ SRC_DIR = ./src/
 LIB_DIR = ./libft/
 MLX_DIR = ./minilibx/
 
-_SRC = draw.c keyboard.c main.c matrix.c \
-		parse_file.c read_file.c  \
+_SRC = printing.c keycode.c main.c mtx_manip.c \
+		parsing.c reading.c addit.c \
 
 SRC = $(_SRC:%.c=$(SRC_DIR)%.c)$
 OBJ = $(_SRC:%.c=%.o)$
@@ -39,10 +39,10 @@ $(NAME): $(OBJ)
 
 clean: 
 	make -C $(LIB_DIR) clean
-	/bin/rm -rf $(OBJ)
+	rm -rf $(OBJ)
 
 fclean: clean
 	make -C $(LIB_DIR) fclean
-	/bin/rm -rf $(NAME)
+	rm -rf $(NAME)
 
 re: fclean all

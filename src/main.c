@@ -12,88 +12,88 @@
 
 #include "fdf.h"
 
-void		init_window(t_win *wind, t_map *map)
+void			setup_wins(t_window *w, t_chart *m)
 {
-	map->win_w = 1500;
-	map->win_h = 1500;
-	wind->mlx = mlx_init();
-	map->w = map->w;
-	if (map->w * (DEFAULT_SCALE + 10) < 1500)
-		map->win_w = map->w * (DEFAULT_SCALE + 15);
-	if (map->h * (DEFAULT_SCALE + 10) < 1500)
-		map->win_h = map->h * (DEFAULT_SCALE + 15);
-	wind->win = mlx_new_window(wind->mlx, map->win_w, map->win_h, "Fdf");
+	m->window_w = 1500;
+	m->window_h = 1500;
+	w->mlx = mlx_init();
+	m->width = m->width;
+	if (m->width * (DEFAULT_SCALE + 10) < 1500)
+		m->window_w = m->width * (DEFAULT_SCALE + 15);
+	if (m->h * (DEFAULT_SCALE + 10) < 1500)
+		m->window_h = m->h * (DEFAULT_SCALE + 15);
+	w->window = mlx_new_window(w->mlx, m->window_w, m->window_h, "Fdf");
 }
 
-void		init_params(t_par *param, t_map *map)
+void			setup_param(t_prms *cond, t_chart *m)
 {
-	param->scale = DEFAULT_SCALE;
-	param->rotate_x = M_PI / 180 * 0;
-	param->rotate_y = M_PI / 180 * 0;
-	param->shift_x = map->win_w / 2;
-	param->shift_y = map->win_h / 2;
+	cond->zoom = DEFAULT_SCALE;
+	cond->rot_x = M_PI / 180 * 0;
+	cond->rot_y = M_PI / 180 * 0;
+	cond->shf_x = m->window_w / 2;
+	cond->shf_y = m->window_h / 2;
 }
 
-int			mod_init_params(int argc, char **argv, t_par *param, t_map *map)
+int				mod_set_cond(int ac, char **av, t_prms *cond, t_chart *mp)
 {
 	int i;
 
-	if (argc == 3)
+	if (ac == 3)
 	{
-		if ((i = cancer_atoi(&(argv[2]))) < 1 || *(argv[2]) != 0)
+		if ((i = best_atoi_ever(&(av[2]))) < 1 || *(av[2]) != 0)
 			return (0);
-		param->scale = i;
-		param->basic_scale = i;
+		cond->zoom = i;
+		cond->base_zoom = i;
 	}
 	else
 	{
-		param->scale = DEFAULT_SCALE;
-		param->basic_scale = DEFAULT_SCALE;
+		cond->zoom = DEFAULT_SCALE;
+		cond->base_zoom = DEFAULT_SCALE;
 	}
-	param->rotate_x = M_PI / 180 * 0;
-	param->rotate_y = M_PI / 180 * 0;
-	param->shift_x = map->win_w / 2;
-	param->shift_y = map->win_h / 2;
+	cond->rot_x = M_PI / 180 * 0;
+	cond->rot_y = M_PI / 180 * 0;
+	cond->shf_x = mp->window_w / 2;
+	cond->shf_y = mp->window_h / 2;
 	return (1);
 }
 
-t_apr		*init_info(t_map *map, t_par *param, t_win *wind)
+t_aprinfo		*init_info(t_chart *mp, t_prms *cond, t_window *wd)
 {
-	t_apr *info;
+	t_aprinfo *data;
 
-	info = (t_apr *)malloc(sizeof(t_apr));
-	info->fmap = map;
-	info->param = param;
-	info->win = wind;
-	info->cmap = convert_map(map, param);
-	return (info);
+	data = (t_aprinfo *)malloc(sizeof(t_aprinfo));
+	data->full_map = mp;
+	data->param = cond;
+	data->window = wd;
+	data->curr_map = conv_map(mp, cond);
+	return (data);
 }
 
-int			main(int argc, char **argv)
+int				main(int argc, char **argv)
 {
-	t_win wind;
-	t_map *map;
-	t_par param;
-	t_apr *info;
+	t_window	wd;
+	t_chart		*mp;
+	t_prms		cond;
+	t_aprinfo	*data;
 
 	if (argc == 1 || argc > 4)
 	{
 		ft_putstr("Usage : ./fdf <filename> [ case_size ]\n");
 		return (0);
 	}
-	map = (t_map *)malloc(sizeof(t_map));
-	if (!(init_map(map, argv)))
+	mp = (t_chart *)malloc(sizeof(t_chart));
+	if (!(setup_map(mp, argv)))
 		return (0);
-	init_window(&wind, map);
-	if (!(mod_init_params(argc, argv, &param, map)))
+	setup_wins(&wd, mp);
+	if (!(mod_set_cond(argc, argv, &cond, mp)))
 	{
 		ft_putstr("Usage : ./fdf <filename> [ case_size ]\n");
-		return (self_destruction(map, map->h - 1));
+		return (solo_destruct(mp, mp->h - 1));
 	}
-	info = init_info(map, &param, &wind);
-	draw_map(info->cmap, &wind, map);
-	mlx_hook(wind.win, 17, 1L << 17, exit_x, wind.mlx);
-	mlx_hook(wind.win, 2, 666, control, info);
-	mlx_loop(wind.mlx);
+	data = init_info(mp, &cond, &wd);
+	draw_tab(data->curr_map, &wd, mp);
+	mlx_hook(wd.window, 17, 1L << 17, exiting_x, wd.mlx);
+	mlx_hook(wd.window, 2, 666, navigation, data);
+	mlx_loop(wd.mlx);
 	return (0);
 }
